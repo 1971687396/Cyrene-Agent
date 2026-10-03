@@ -17,6 +17,48 @@ export const CLAUDE_REGISTRY = defineVendor({
     // 自家协议 only
     supportedTransports: ["anthropic"],
   },
+  presetDefaults: {
+    baseUrl: "https://api.anthropic.com/v1",
+    transport: "anthropic",
+  },
+  models: [
+    {
+      model: "claude-fable-5",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "anthropic", note: "现有采样白名单未覆盖该型号。" },
+      ],
+    },
+    {
+      model: "claude-opus-4-8",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "anthropic", note: "现有采样白名单未覆盖该型号。" },
+      ],
+    },
+    {
+      model: "claude-sonnet-4-6",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "anthropic", note: "现有采样白名单未覆盖该型号。" },
+      ],
+    },
+    {
+      model: "claude-opus-4-7",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+    {
+      model: "claude-opus-4-6",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+    {
+      model: "claude-sonnet-5",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+  ],
   shortName: "Claude",
   structuredOutputRules: [
     {

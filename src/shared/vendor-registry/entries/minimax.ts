@@ -22,6 +22,44 @@ export const MINIMAX_REGISTRY = defineVendor({
     // 三协议全支持（协议矩阵 2026-08-21）
     supportedTransports: ["anthropic", "openai", "responses"],
   },
+  presetDefaults: {
+    baseUrl: "https://api.minimaxi.com/v1",
+    transport: "anthropic",
+    anthropicBaseUrl: "https://api.minimaxi.com/anthropic",
+    responsesBaseUrl: "https://api.minimax.cn/v1",
+    visionBaseUrl: "https://api.minimaxi.com/v1",
+  },
+  models: [
+    {
+      model: "MiniMax-M3.1-Flash-Preview",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "anthropic", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "anthropic", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "MiniMax-M3",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "structuredOutput", transport: "anthropic", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "MiniMax-M2.7",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "structuredOutput", transport: "anthropic", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "MiniMax-M2.5",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "structuredOutput", transport: "anthropic", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+  ],
   shortName: "MiniMax",
   // 厂商怪癖：OpenAI 兼容文本 API 的 tool_choice 文档仅支持 auto/none，
   // must-call 一律首选 auto。
@@ -72,7 +110,7 @@ export const MINIMAX_REGISTRY = defineVendor({
       supportsDisable: true,
       defaultMode: "off",
     } },
-    { modelPattern: /^MiniMax-M2\./i, modelInferencePattern: /^MiniMax-M2\./i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/minimax.ts"), capability: {
+    { familyLabel: "MiniMax-M2.x 系列", modelPattern: /^MiniMax-M2\./i, modelInferencePattern: /^MiniMax-M2\./i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/minimax.ts"), capability: {
       control: "fixed-on",
       requestStyle: "none",
       supportsDisable: false,

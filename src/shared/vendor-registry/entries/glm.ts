@@ -17,6 +17,65 @@ export const GLM_REGISTRY = defineVendor({
     // OpenAI 兼容 + Anthropic 兼容（协议矩阵 2026-08-21，用户确认）
     supportedTransports: ["openai", "anthropic"],
   },
+  presetDefaults: {
+    baseUrl: "https://open.bigmodel.cn/api/paas/v4",
+    transport: "openai",
+    anthropicBaseUrl: "https://open.bigmodel.cn/api/anthropic",
+  },
+  models: [
+    {
+      model: "glm-5.3",
+      recommendedFor: ["chat"],
+    },
+    {
+      model: "glm-5.3-flash",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+      ],
+    },
+    {
+      model: "glm-5.3-flashx",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+      ],
+    },
+    {
+      model: "glm-5.2",
+      recommendedFor: ["chat"],
+    },
+    {
+      model: "glm-5.1",
+      recommendedFor: ["chat"],
+    },
+    {
+      model: "glm-5-turbo",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "structuredOutput", transport: "openai", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "glm-4.7",
+      recommendedFor: ["chat"],
+    },
+    {
+      model: "glm-5v-turbo",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+    {
+      model: "glm-4.5",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+    {
+      model: "glm-4.6",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+  ],
   shortName: "GLM",
   samplingRules: [
     {
@@ -83,7 +142,7 @@ export const GLM_REGISTRY = defineVendor({
       requestStyle: "thinking-type",
       supportsDisable: true,
     } },
-    { modelPattern: /^glm-(4\.5|4\.6|4\.7)/i, modelInferencePattern: /^glm-(4\.5|4\.6|4\.7)/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/glm.ts"), capability: {
+    { familyLabel: "glm-4.5 / glm-4.6 / glm-4.7", modelPattern: /^glm-(4\.5|4\.6|4\.7)/i, modelInferencePattern: /^glm-(4\.5|4\.6|4\.7)/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/glm.ts"), capability: {
       control: "toggle",
       requestStyle: "thinking-type",
       supportsDisable: true,

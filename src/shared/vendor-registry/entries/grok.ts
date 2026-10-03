@@ -20,6 +20,50 @@ export const GROK_REGISTRY = defineVendor({
     // Chat Completions + Responses 双协议均有官方 quickstart 示例
     supportedTransports: ["openai", "responses"],
   },
+  presetDefaults: {
+    baseUrl: "https://api.x.ai/v1",
+    transport: "openai",
+  },
+  models: [
+    {
+      model: "grok-4.7",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "openai", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "grok-4.6",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "openai", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "grok-4.5",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "openai", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "grok-build-0.1",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "reasoning", transport: "openai", note: "现有推理规则未确认该型号。" },
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "openai", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "grok-4.20-multi-agent",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+  ],
   shortName: "Grok",
   reasoningRules: [
     // ── grok（xAI）──
@@ -51,7 +95,7 @@ export const GROK_REGISTRY = defineVendor({
     } },
     // 其余 grok-4 系列（4.3 / 4.20 / 4.1-fast 等）：x.ai 官方 reasoning 文档未逐一列档，
     // Bedrock 发布文与第三方网关实测均为 low/medium/high 三档，保守覆盖。
-    { modelPattern: /^grok-4/i, modelInferencePattern: /^grok-4/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/grok.ts"), capability: {
+    { familyLabel: "grok-4 系列", modelPattern: /^grok-4/i, modelInferencePattern: /^grok-4/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/grok.ts"), capability: {
       control: "effort",
       supportedEfforts: ["low", "medium", "high"],
       defaultEffort: "high",

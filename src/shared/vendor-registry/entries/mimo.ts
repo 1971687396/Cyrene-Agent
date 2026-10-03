@@ -22,6 +22,36 @@ export const MIMO_REGISTRY = defineVendor({
     // 三格式原生全支持（协议矩阵 2026-08-21）
     supportedTransports: ["openai", "anthropic", "responses"],
   },
+  presetDefaults: {
+    baseUrl: "https://api.xiaomimimo.com/v1",
+    transport: "openai",
+    anthropicBaseUrl: "https://api.xiaomimimo.com/anthropic",
+    visionBaseUrl: "https://api.xiaomimimo.com/v1",
+    defaultVisionModel: "mimo-v2.6-pro",
+  },
+  models: [
+    {
+      model: "mimo-v2.6-pro",
+      recommendedFor: ["chat","vision"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+      ],
+    },
+    {
+      model: "mimo-v2.6-flash",
+      recommendedFor: ["chat","vision"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+      ],
+    },
+    {
+      model: "mimo-v2.6-pro-ultraspeed",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+      ],
+    },
+  ],
   shortName: "MiMo",
   samplingRules: [
     {
@@ -51,7 +81,7 @@ export const MIMO_REGISTRY = defineVendor({
     // 跨 transport 共用：OpenAI 入口 + Anthropic 入口都生成 thinking.type。
     // V2.5 / V2.6 同一控制面（官方文档请求体一致）：thinking.type 仅 enabled/disabled
     // 开关、无 effort 档位，V2.6 无需单独条目。
-    { modelPattern: /^mimo-v2\./i, modelInferencePattern: /^mimo-v2\./i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/mimo.ts"), capability: {
+    { familyLabel: "mimo-v2.x 系列（含 V2.5）", modelPattern: /^mimo-v2\./i, modelInferencePattern: /^mimo-v2\./i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/mimo.ts"), capability: {
       control: "toggle",
       requestStyle: "thinking-type",
       supportsDisable: true,

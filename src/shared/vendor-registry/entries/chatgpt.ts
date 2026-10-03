@@ -22,6 +22,68 @@ export const CHATGPT_REGISTRY = defineVendor({
     responsesEncryptedReasoning: true,
   },
   // 状态栏短名，与 presets 的 shortName "GPT" 对齐（一致性测试校验两侧相等）
+  presetDefaults: {
+    baseUrl: "https://api.openai.com/v1",
+    transport: "responses",
+  },
+  models: [
+    {
+      model: "gpt-6-astra",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "responses", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "responses", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "gpt-6.1-sol",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "responses", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "responses", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "gpt-6-sol",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "responses", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "responses", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "gpt-6-luna",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "responses", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "responses", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "gpt-5.6",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "responses", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "responses", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "gpt-5.6-terra",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "responses", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "responses", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "gpt-5.6-luna",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "responses", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "responses", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+  ],
   shortName: "GPT",
   samplingRules: [
     {
@@ -98,28 +160,28 @@ export const CHATGPT_REGISTRY = defineVendor({
       supportsDisable: true,
       supportsProMode: true,
     } },
-    { modelPattern: /^gpt-5/i, modelInferencePattern: /^gpt-5/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
+    { familyLabel: "gpt-5 系列", modelPattern: /^gpt-5/i, modelInferencePattern: /^gpt-5/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["minimal", "low", "medium", "high"],
       defaultEffort: "medium",
       requestStyle: "openai-effort",
       supportsDisable: true,
     } },
-    { modelPattern: /^o1/i, modelInferencePattern: /^o1/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
+    { familyLabel: "o1 系列", modelPattern: /^o1/i, modelInferencePattern: /^o1/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["low", "medium", "high"],
       defaultEffort: "medium",
       requestStyle: "openai-effort",
       supportsDisable: true,
     } },
-    { modelPattern: /^o3/i, modelInferencePattern: /^o3/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
+    { familyLabel: "o3 系列", modelPattern: /^o3/i, modelInferencePattern: /^o3/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["low", "medium", "high"],
       defaultEffort: "medium",
       requestStyle: "openai-effort",
       supportsDisable: true,
     } },
-    { modelPattern: /^o4/i, modelInferencePattern: /^o4/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
+    { familyLabel: "o4 系列", modelPattern: /^o4/i, modelInferencePattern: /^o4/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["medium", "high"],
       defaultEffort: "medium",

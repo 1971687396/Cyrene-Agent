@@ -19,6 +19,41 @@ export const DEEPSEEK_REGISTRY = defineVendor({
     // 三格式原生全支持（官方文档）
     supportedTransports: ["openai", "anthropic", "responses"],
   },
+  presetDefaults: {
+    baseUrl: "https://api.deepseek.com",
+    transport: "openai",
+    anthropicBaseUrl: "https://api.deepseek.com/anthropic",
+  },
+  models: [
+    {
+      model: "deepseek-flash",
+      recommendedFor: ["chat"],
+    },
+    {
+      model: "deepseek-v4-pro",
+      recommendedFor: ["chat"],
+    },
+    {
+      model: "deepseek-v4-flash",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+    {
+      model: "deepseek-v4-flash-vision-exp",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+    {
+      model: "deepseek-chat",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+    {
+      model: "deepseek-reasoner",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+  ],
   shortName: "DeepSeek",
   // 厂商怪癖：思考时拒绝一切 tool_choice（must-call 也省略字段），
   // 思考开启时普通 FC 轮同样省略 tool_choice；非思考轮不受影响。

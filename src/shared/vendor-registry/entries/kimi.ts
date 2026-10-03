@@ -18,6 +18,50 @@ export const KIMI_REGISTRY = defineVendor({
     // 官方仅兼容 Chat Completions（协议矩阵 2026-08-21）
     supportedTransports: ["openai"],
   },
+  presetDefaults: {
+    baseUrl: "https://api.moonshot.cn/v1",
+    transport: "openai",
+  },
+  models: [
+    {
+      model: "kimi-k2.6",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+      ],
+    },
+    {
+      model: "kimi-k2.5",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "openai", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "kimi-k2-thinking",
+      recommendedFor: ["chat"],
+      unknownCapabilities: [
+        { feature: "sampling", transport: "openai", note: "现有采样白名单未覆盖该型号。" },
+        { feature: "structuredOutput", transport: "openai", note: "预设协议没有专用结构化输出规则，保留提示词 JSON 回退。" },
+      ],
+    },
+    {
+      model: "kimi-k3",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+    {
+      model: "kimi-k2.7-code",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+    {
+      model: "kimi-k2.7-code-highspeed",
+      recommendedFor: [],
+      note: "历史清单保留名称；不改写用户请求。",
+    },
+  ],
   shortName: "Kimi",
   // 厂商怪癖：fixed-thinking / 思考中的模型拒绝指定工具选择，
   // must-call 首选 auto 保持原生 Function Calling。
