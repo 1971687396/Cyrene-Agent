@@ -71,11 +71,12 @@ Fixes #12
 
 ### 模型适配（涉及型号或能力声明时填写）
 
-<!-- 指南：docs/contributing/model-adaptation.md；常规单厂商声明更新可直接提 PR。 -->
+<!-- 指南：docs/contributing/model-adaptation.md；常规单厂商声明更新可直接提 PR。修改型号或能力时，请一并更新生成的模型适配清单。 -->
 
 * 厂商 / 准确型号 / 协议 / 端点类型：
 * 官方资料或脱敏实测、核验日期、仍未知的能力：
-* [ ] 已运行聚焦用例与两端类型检查，并生成和检查适配清单
+* [ ] 已运行聚焦用例与两端类型检查
+* [ ] 已运行 `pnpm run generate:adapted-models`，并提交更新后的 `docs/references/adapted-models.md`
 
 ### 通用检查
 
