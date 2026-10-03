@@ -1,6 +1,5 @@
 // mimo（小米）的注册表条目 —— 推理规则自 shared/reasoning.ts、能力自 capabilities.ts 原样迁入。
-import { defineVendor } from "../types";
-import { UNKNOWN_REASONING_CAPABILITY } from "../fallback";
+import { defineVendor, legacyMetadata } from "../define-vendor";
 
 export const MIMO_REGISTRY = defineVendor({
   capability: {
@@ -29,11 +28,10 @@ export const MIMO_REGISTRY = defineVendor({
     // 跨 transport 共用：OpenAI 入口 + Anthropic 入口都生成 thinking.type。
     // V2.5 / V2.6 同一控制面（官方文档请求体一致）：thinking.type 仅 enabled/disabled
     // 开关、无 effort 档位，V2.6 无需单独条目。
-    { providerId: "mimo", modelPattern: /^mimo-v2\./i, capability: {
+    { modelPattern: /^mimo-v2\./i, modelInferencePattern: /^mimo-v2\./i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/mimo.ts"), capability: {
       control: "toggle",
       requestStyle: "thinking-type",
       supportsDisable: true,
     } },
-    { providerId: "mimo", modelPattern: /.*/, capability: UNKNOWN_REASONING_CAPABILITY },
   ],
 });

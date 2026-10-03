@@ -1,6 +1,5 @@
 // doubao（火山方舟）的注册表条目 —— 推理规则自 shared/reasoning.ts、能力自 capabilities.ts 原样迁入。
-import { defineVendor } from "../types";
-import { UNKNOWN_REASONING_CAPABILITY } from "../fallback";
+import { defineVendor, legacyMetadata } from "../define-vendor";
 
 export const DOUBAO_REGISTRY = defineVendor({
   capability: {
@@ -21,11 +20,10 @@ export const DOUBAO_REGISTRY = defineVendor({
   shortName: "豆包",
   reasoningRules: [
     // ── doubao（火山方舟）──
-    { providerId: "doubao", modelPattern: /^doubao-seed-/i, capability: {
+    { modelPattern: /^doubao-seed-/i, modelInferencePattern: /^doubao-seed-/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/doubao.ts"), capability: {
       control: "toggle",
       requestStyle: "thinking-type",
       supportsDisable: true,
     } },
-    { providerId: "doubao", modelPattern: /.*/, capability: UNKNOWN_REASONING_CAPABILITY },
   ],
 });

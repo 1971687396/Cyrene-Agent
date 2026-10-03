@@ -1,6 +1,5 @@
 // kimi（月之暗面）的注册表条目 —— 推理规则自 shared/reasoning.ts、能力自 capabilities.ts 原样迁入。
-import { defineVendor } from "../types";
-import { UNKNOWN_REASONING_CAPABILITY } from "../fallback";
+import { defineVendor, legacyMetadata } from "../define-vendor";
 
 export const KIMI_REGISTRY = defineVendor({
   capability: {
@@ -30,7 +29,7 @@ export const KIMI_REGISTRY = defineVendor({
     // K3：旗舰思考模型（2026-07 发布）。思考始终开启（Preserved Thinking 常开），
     // 不用 K2.x 的 thinking 参数，用顶层 reasoning_effort（low/high/max，默认 max）。
     // 强制思考 + 服务端默认 max → 与 GLM-5.3 同体质，默认选择 high 防思考爆炸。
-    { providerId: "kimi", modelPattern: /^kimi-k3/i, capability: {
+    { modelPattern: /^kimi-k3/i, modelInferencePattern: /^kimi-k3/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/kimi.ts"), capability: {
       control: "effort",
       supportedEfforts: ["low", "high", "max"],
       defaultEffort: "high",
@@ -40,33 +39,32 @@ export const KIMI_REGISTRY = defineVendor({
     } },
     // K2.7-Code / K2.7-Code-HighSpeed 必须用精确正则（$-anchor），
     // 且排在通用 kimi-k2-thinking 系列之前。
-    { providerId: "kimi", modelPattern: /^kimi-k2\.7-code-highspeed$/i, capability: {
+    { modelPattern: /^kimi-k2\.7-code-highspeed$/i, modelInferencePattern: /^kimi-k2\.7-code-highspeed$/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/kimi.ts"), capability: {
       control: "fixed-on",
       requestStyle: "none",
       supportsDisable: false,
     } },
-    { providerId: "kimi", modelPattern: /^kimi-k2\.7-code$/i, capability: {
+    { modelPattern: /^kimi-k2\.7-code$/i, modelInferencePattern: /^kimi-k2\.7-code$/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/kimi.ts"), capability: {
       control: "fixed-on",
       requestStyle: "none",
       supportsDisable: false,
     } },
-    { providerId: "kimi", modelPattern: /^kimi-k2\.6/i, capability: {
+    { modelPattern: /^kimi-k2\.6/i, modelInferencePattern: /^kimi-k2\.6/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/kimi.ts"), capability: {
       control: "toggle",
       requestStyle: "thinking-type",
       supportsDisable: true,
       keepOnTools: true,
     } },
-    { providerId: "kimi", modelPattern: /^kimi-k2\.5/i, capability: {
+    { modelPattern: /^kimi-k2\.5/i, modelInferencePattern: /^kimi-k2\.5/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/kimi.ts"), capability: {
       control: "toggle",
       requestStyle: "thinking-type",
       supportsDisable: true,
       keepOnTools: false,
     } },
-    { providerId: "kimi", modelPattern: /^kimi-k2-thinking/i, capability: {
+    { modelPattern: /^kimi-k2-thinking/i, modelInferencePattern: /^kimi-k2-thinking/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/kimi.ts"), capability: {
       control: "fixed-on",
       requestStyle: "none",
       supportsDisable: false,
     } },
-    { providerId: "kimi", modelPattern: /.*/, capability: UNKNOWN_REASONING_CAPABILITY },
   ],
 });

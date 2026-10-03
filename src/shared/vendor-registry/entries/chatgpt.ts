@@ -1,6 +1,5 @@
 // chatgpt（OpenAI）的注册表条目 —— 推理规则自 shared/reasoning.ts、能力自 capabilities.ts 原样迁入。
-import { defineVendor } from "../types";
-import { UNKNOWN_REASONING_CAPABILITY } from "../fallback";
+import { defineVendor, legacyMetadata } from "../define-vendor";
 
 export const CHATGPT_REGISTRY = defineVendor({
   capability: {
@@ -32,7 +31,7 @@ export const CHATGPT_REGISTRY = defineVendor({
     // effort 与 Sol 相同（可关闭 → supportsDisable=true），pro mode 同样支持。
     // 必须排在 /^gpt-6/（Astra 兜底，禁关思考）之前：/^gpt-6-/ 匹配不到 "gpt-6.1-"，
     // 不前置会被 Astra 规则误吞。
-    { providerId: "chatgpt", modelPattern: /^gpt-6\.1/i, capability: {
+    { modelPattern: /^gpt-6\.1/i, modelInferencePattern: /^gpt-6\.1/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["low", "medium", "high", "xhigh", "max"],
       defaultEffort: "medium",
@@ -45,7 +44,7 @@ export const CHATGPT_REGISTRY = defineVendor({
     // 思考（off → reasoning_effort:"none"）；pro mode 与 GPT-6 系一致支持。
     // 官方限制：Chat Completions 下函数调用仅 effort=none 可用，走 Responses
     // transport 不受限（capability 默认 transport 已是 responses）。
-    { providerId: "chatgpt", modelPattern: /^gpt-6-(?:sol|luna)/i, capability: {
+    { modelPattern: /^gpt-6-(?:sol|luna)/i, modelInferencePattern: /^gpt-6-(?:sol|luna)/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["low", "medium", "high", "xhigh", "max"],
       defaultEffort: "medium",
@@ -57,7 +56,7 @@ export const CHATGPT_REGISTRY = defineVendor({
     // 官方迁移说明明确不支持 none 档 → supportsDisable=false，off 折叠为 on 落
     // defaultEffort；pro mode 与 5.6 一致继续支持（官方迁移指南）。
     // defaultEffort 是 Cyrene 的产品默认档（质量/延迟/成本的平衡点），非官方 API 默认。
-    { providerId: "chatgpt", modelPattern: /^gpt-6/i, capability: {
+    { modelPattern: /^gpt-6/i, modelInferencePattern: /^gpt-6/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["low", "medium", "high", "xhigh", "max"],
       defaultEffort: "medium",
@@ -68,7 +67,7 @@ export const CHATGPT_REGISTRY = defineVendor({
     // GPT-5.6 当前 Chat Completions 接受 low/medium/high/xhigh/max
     // （不含 minimal）；supportsDisable=true，off → reasoning_effort:"none"。
     // supportsProMode=true：Responses API 支持 reasoning.mode:"pro"（与 effort 正交）。
-    { providerId: "chatgpt", modelPattern: /^gpt-5\.6/i, capability: {
+    { modelPattern: /^gpt-5\.6/i, modelInferencePattern: /^gpt-5\.6/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["low", "medium", "high", "xhigh", "max"],
       defaultEffort: "medium",
@@ -76,34 +75,33 @@ export const CHATGPT_REGISTRY = defineVendor({
       supportsDisable: true,
       supportsProMode: true,
     } },
-    { providerId: "chatgpt", modelPattern: /^gpt-5/i, capability: {
+    { modelPattern: /^gpt-5/i, modelInferencePattern: /^gpt-5/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["minimal", "low", "medium", "high"],
       defaultEffort: "medium",
       requestStyle: "openai-effort",
       supportsDisable: true,
     } },
-    { providerId: "chatgpt", modelPattern: /^o1/i, capability: {
+    { modelPattern: /^o1/i, modelInferencePattern: /^o1/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["low", "medium", "high"],
       defaultEffort: "medium",
       requestStyle: "openai-effort",
       supportsDisable: true,
     } },
-    { providerId: "chatgpt", modelPattern: /^o3/i, capability: {
+    { modelPattern: /^o3/i, modelInferencePattern: /^o3/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["low", "medium", "high"],
       defaultEffort: "medium",
       requestStyle: "openai-effort",
       supportsDisable: true,
     } },
-    { providerId: "chatgpt", modelPattern: /^o4/i, capability: {
+    { modelPattern: /^o4/i, modelInferencePattern: /^o4/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/chatgpt.ts"), capability: {
       control: "effort",
       supportedEfforts: ["medium", "high"],
       defaultEffort: "medium",
       requestStyle: "openai-effort",
       supportsDisable: true,
     } },
-    { providerId: "chatgpt", modelPattern: /.*/, capability: UNKNOWN_REASONING_CAPABILITY },
   ],
 });

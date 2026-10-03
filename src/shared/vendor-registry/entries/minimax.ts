@@ -1,6 +1,5 @@
 // minimax（稀宇科技）的注册表条目 —— 推理规则自 shared/reasoning.ts、能力自 capabilities.ts 原样迁入。
-import { defineVendor } from "../types";
-import { UNKNOWN_REASONING_CAPABILITY } from "../fallback";
+import { defineVendor, legacyMetadata } from "../define-vendor";
 
 export const MINIMAX_REGISTRY = defineVendor({
   capability: {
@@ -37,7 +36,7 @@ export const MINIMAX_REGISTRY = defineVendor({
     // 不能关闭 → supportsDisable=false。官方缺省 max，与 GLM-5.3 / Kimi K3 同属
     // "思考爆炸"体质，产品默认压到 high。
     // 必须排在 /^MiniMax-M3/ 之前，否则会被 M3 的 toggle 规则先吞掉。
-    { providerId: "minimax", modelPattern: /^MiniMax-M3\.1/i, capability: {
+    { modelPattern: /^MiniMax-M3\.1/i, modelInferencePattern: /^MiniMax-M3\.1/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/minimax.ts"), capability: {
       control: "toggle-effort",
       supportedEfforts: ["low", "medium", "high", "xhigh", "max"],
       defaultEffort: "high",
@@ -46,17 +45,16 @@ export const MINIMAX_REGISTRY = defineVendor({
       autoEffort: "high",
     } },
     // M3 走 anthropic-adaptive（on=adaptive / off=disabled），不用通用 thinking-type 路径。
-    { providerId: "minimax", modelPattern: /^MiniMax-M3/i, capability: {
+    { modelPattern: /^MiniMax-M3/i, modelInferencePattern: /^MiniMax-M3/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/minimax.ts"), capability: {
       control: "toggle",
       requestStyle: "anthropic-adaptive",
       supportsDisable: true,
       defaultMode: "off",
     } },
-    { providerId: "minimax", modelPattern: /^MiniMax-M2\./i, capability: {
+    { modelPattern: /^MiniMax-M2\./i, modelInferencePattern: /^MiniMax-M2\./i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/minimax.ts"), capability: {
       control: "fixed-on",
       requestStyle: "none",
       supportsDisable: false,
     } },
-    { providerId: "minimax", modelPattern: /.*/, capability: UNKNOWN_REASONING_CAPABILITY },
   ],
 });

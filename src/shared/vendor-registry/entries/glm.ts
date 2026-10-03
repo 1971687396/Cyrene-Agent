@@ -1,6 +1,5 @@
 // glm（智谱）的注册表条目 —— 推理规则自 shared/reasoning.ts、能力自 capabilities.ts 原样迁入。
-import { defineVendor } from "../types";
-import { UNKNOWN_REASONING_CAPABILITY } from "../fallback";
+import { defineVendor, legacyMetadata } from "../define-vendor";
 
 export const GLM_REGISTRY = defineVendor({
   capability: {
@@ -27,7 +26,7 @@ export const GLM_REGISTRY = defineVendor({
     // 2026-09-06 实测方舟托管端点 api/coding/v3 同样返回 400，强制思考跨端点成立）。
     // 支持 low/high/max 三档 effort（方舟端点 reasoning_effort 实测可用）。
     // 默认选择 high 并显式发送 —— 服务端默认 max，多步任务思考开销过大。
-    { providerId: "glm", modelPattern: /^glm-5\.3/i, capability: {
+    { modelPattern: /^glm-5\.3/i, modelInferencePattern: /^glm-5\.3/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/glm.ts"), capability: {
       control: "toggle-effort",
       supportedEfforts: ["low", "high", "max"],
       defaultEffort: "high",
@@ -36,7 +35,7 @@ export const GLM_REGISTRY = defineVendor({
       autoEffort: "high",
     } },
     // GLM-5.2：支持关闭思考；effort 档位较全。默认选择 high（服务端默认偏重）。
-    { providerId: "glm", modelPattern: /^glm-5\.2/i, capability: {
+    { modelPattern: /^glm-5\.2/i, modelInferencePattern: /^glm-5\.2/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/glm.ts"), capability: {
       control: "toggle-effort",
       supportedEfforts: ["low", "medium", "high", "xhigh", "max"],
       defaultEffort: "high",
@@ -44,31 +43,30 @@ export const GLM_REGISTRY = defineVendor({
       supportsDisable: true,
       autoEffort: "high",
     } },
-    { providerId: "glm", modelPattern: /^glm-5-turbo$/i, capability: {
+    { modelPattern: /^glm-5-turbo$/i, modelInferencePattern: /^glm-5-turbo$/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/glm.ts"), capability: {
       control: "toggle",
       requestStyle: "thinking-type",
       supportsDisable: true,
     } },
-    { providerId: "glm", modelPattern: /^glm-5v-turbo$/i, capability: {
+    { modelPattern: /^glm-5v-turbo$/i, modelInferencePattern: /^glm-5v-turbo$/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/glm.ts"), capability: {
       control: "toggle",
       requestStyle: "thinking-type",
       supportsDisable: true,
     } },
-    { providerId: "glm", modelPattern: /^glm-5\.1/i, capability: {
+    { modelPattern: /^glm-5\.1/i, modelInferencePattern: /^glm-5\.1/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/glm.ts"), capability: {
       control: "toggle",
       requestStyle: "thinking-type",
       supportsDisable: true,
     } },
-    { providerId: "glm", modelPattern: /^glm-5/i, capability: {
+    { modelPattern: /^glm-5/i, modelInferencePattern: /^glm-5/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/glm.ts"), capability: {
       control: "toggle",
       requestStyle: "thinking-type",
       supportsDisable: true,
     } },
-    { providerId: "glm", modelPattern: /^glm-(4\.5|4\.6|4\.7)/i, capability: {
+    { modelPattern: /^glm-(4\.5|4\.6|4\.7)/i, modelInferencePattern: /^glm-(4\.5|4\.6|4\.7)/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/glm.ts"), capability: {
       control: "toggle",
       requestStyle: "thinking-type",
       supportsDisable: true,
     } },
-    { providerId: "glm", modelPattern: /.*/, capability: UNKNOWN_REASONING_CAPABILITY },
   ],
 });
