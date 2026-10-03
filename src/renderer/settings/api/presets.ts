@@ -3,6 +3,7 @@
 import type { ApiTransport } from "../../../shared/api-endpoint";
 import { VENDOR_REGISTRY, type BuiltinProviderId } from "../../../shared/vendor-registry";
 import { getBuiltinModels } from "../../../shared/vendor-registry/catalog";
+import { getPresetTransportUrl } from "../../../shared/vendor-registry/preset-defaults";
 import type { VendorPresetDefaults } from "../../../shared/vendor-registry/model-types";
 import type { ModelPreset } from "../shared/types";
 import { CUSTOM_ENDPOINT_PROVIDERS } from "../custom-endpoint-state";
@@ -59,7 +60,5 @@ export const MODEL_PRESETS: ModelPreset[] = [
 ];
 
 export function presetTransportUrl(preset: ModelPreset, transport: ApiTransport): string {
-  if (transport === "anthropic" && preset.anthropicBaseUrl) return preset.anthropicBaseUrl;
-  if (transport === "responses" && preset.responsesBaseUrl) return preset.responsesBaseUrl;
-  return preset.baseUrl;
+  return getPresetTransportUrl(preset, transport);
 }

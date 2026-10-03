@@ -1,6 +1,7 @@
 import type { AdaptationEvidence, ModelSamplingRuleInput, RuleMetadata, StructuredOutputRuleInput } from "./model-types";
 import type { ModelReasoningRule, Transport, VendorRegistryEntry } from "./types";
 import { evidenceCoversEndpoint, evidenceCoversTransport } from "./validation";
+import { getPresetTransportUrl } from "./preset-defaults";
 
 const TRANSPORTS: readonly Transport[] = ["openai", "anthropic", "responses"];
 const REASONING_LABELS = {
@@ -73,8 +74,9 @@ export function renderAdaptedModelsMarkdown(entries: readonly VendorRegistryEntr
   for (const entry of entries) {
     const cap = entry.capability;
     const transport = entry.presetDefaults?.transport ?? cap.transport;
+    const presetEndpoint = entry.presetDefaults ? getPresetTransportUrl(entry.presetDefaults, transport) : cap.baseUrl;
     lines.push(`## ${cell(cap.displayName)}`, "",
-      `预设协议：${transport}；预填地址：${cell(entry.presetDefaults?.baseUrl ?? cap.baseUrl)}。`, "",
+      `预设协议：${transport}；预填地址：${cell(presetEndpoint)}。`, "",
       `运行默认：${cap.transport} / ${cell(cap.baseUrl)} / ${cell(cap.defaultModel)}。`, "",
       `工具支持：厂商级声明 ${cap.supportsTools ? "支持" : "不支持"}，未逐型号核验。视觉推荐仅表示目录推荐用途，未逐型号核验。`, "",
       "| 型号 | 界面推荐 | 推理（预设协议） | 采样（预设协议） | 结构化输出（官方端点） | 证据与限制 |",
@@ -95,7 +97,6 @@ export function renderAdaptedModelsMarkdown(entries: readonly VendorRegistryEntr
         ...(item.unknownCapabilities ?? []).map((unknown) => `未知 ${unknown.feature} / ${unknown.transport}：${cell(unknown.note)}`),
       ].filter(Boolean).join("<br>") || "无型号级证据";
       const recommendation = item.recommendedFor.map((purpose) => purpose === "chat" ? "主模型" : "视觉").join(" / ") || "非推荐";
-      const presetEndpoint = entry.presetDefaults?.baseUrl ?? cap.baseUrl;
       lines.push(`| ${cell(item.model)} | ${recommendation} | ${reasoningLabel(reasoning, transport, presetEndpoint)} | ${samplingLabel(sampling, transport, presetEndpoint)} | ${outputs.map(({ protocol, rule }) => `${protocol}：${outputLabel(rule, cap.baseUrl)}`).join("<br>")} | ${evidence} |`);
     }
     const families = [

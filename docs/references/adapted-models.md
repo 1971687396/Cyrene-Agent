@@ -12,7 +12,7 @@
 
 ## MiniMax（稀宇科技）
 
-预设协议：anthropic；预填地址：https://api.minimaxi.com/v1。
+预设协议：anthropic；预填地址：https://api.minimaxi.com/anthropic。
 
 运行默认：anthropic / https://api.minimaxi.com/anthropic / MiniMax-M3。
 

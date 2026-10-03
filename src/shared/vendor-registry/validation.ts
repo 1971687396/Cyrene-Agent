@@ -1,5 +1,6 @@
 import type { AdaptationEvidence, RuleMetadata } from "./model-types";
 import type { Transport, VendorRegistryEntry } from "./types";
+import { getPresetTransportUrl } from "./preset-defaults";
 
 function validDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -64,14 +65,15 @@ export function validateModelCatalog(entries: readonly VendorRegistryEntry[]): s
       }
       if (!item.recommendedFor.length) continue;
       const transport = entry.presetDefaults.transport;
+      const presetEndpoint = getPresetTransportUrl(entry.presetDefaults, transport);
       const covered = (metadata: RuleMetadata | undefined, endpoint: string) => !!metadata && metadata.status !== "unknown"
         && evidenceCoversTransport(metadata.evidence, transport) && evidenceCoversEndpoint(metadata.evidence, endpoint);
       const reasoning = entry.reasoningRules.find((rule) => rule.modelPattern.test(item.model));
       const sampling = entry.samplingRules?.find((rule) => rule.modelPattern.test(item.model));
       const output = entry.structuredOutputRules?.find((rule) => rule.transport === transport && rule.modelPattern.test(item.model));
       for (const [feature, metadata, endpoint] of [
-        ["reasoning", reasoning?.metadata, entry.presetDefaults.baseUrl],
-        ["sampling", sampling?.metadata, entry.presetDefaults.baseUrl],
+        ["reasoning", reasoning?.metadata, presetEndpoint],
+        ["sampling", sampling?.metadata, presetEndpoint],
         ["structuredOutput", output?.metadata, entry.capability.baseUrl],
       ] as const) {
         const explicitUnknown = item.unknownCapabilities?.some((unknown) => unknown.feature === feature && unknown.transport === transport && unknown.note.trim());

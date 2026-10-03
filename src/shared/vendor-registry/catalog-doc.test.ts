@@ -35,6 +35,29 @@ function fixture() {
 }
 
 describe("生成公开适配清单", () => {
+  it("按预设协议的专用地址校验和显示推理、采样实测证据", () => {
+    const entry = fixture();
+    const metadata = { status: "supported" as const, evidence: {
+      kind: "observed" as const, artifact: "docs/observations/sample.md", checkedAt: "2026-10-04",
+      transport: "anthropic" as const, endpoint: "https://example.com/anthropic",
+    } };
+    const scoped = {
+      ...entry,
+      presetDefaults: { ...entry.presetDefaults, transport: "anthropic" as const, anthropicBaseUrl: "https://example.com/anthropic" },
+      models: [{ ...entry.models[0], unknownCapabilities: [
+        { feature: "structuredOutput" as const, transport: "anthropic" as const, note: "没有该协议的输出规则" },
+      ] }],
+      reasoningRules: entry.reasoningRules.map((rule) => rule.metadata ? { ...rule, metadata } : rule),
+      samplingRules: entry.samplingRules.map((rule) => ({ ...rule, metadata })),
+    };
+    expect(validateModelCatalog([scoped])).toEqual([]);
+    const output = renderAdaptedModelsMarkdown([scoped]);
+    expect(output).not.toContain("证据未覆盖该端点");
+    expect(output).toContain("预填地址：https://example.com/anthropic");
+    expect(output).toContain("思考开关；可关闭");
+    expect(output).toContain("仅关闭思考时");
+  });
+
   it("区分协议、未知、历史证据和采样条件，保留历史型号与人工系列", () => {
     const output = renderAdaptedModelsMarkdown([fixture()]);
     expect(output).toContain("sample-v1 | 主模型");

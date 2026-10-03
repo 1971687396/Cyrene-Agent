@@ -57,6 +57,14 @@ describe("厂商声明边界", () => {
     expect(() => defineVendor(entry(/.*/))).toThrow(/glm.*reasoning.*0/);
   });
 
+  test.each([/^.*$/, /^.*$/i, /^(?:.*)$/, /[\s\S]*/, /^[\s\S]*$/])("拒绝全匹配 %s 和复制的未知能力对象，保留跨厂商推断", (pattern) => {
+    const input = entry(pattern);
+    expect(() => defineVendor({
+      ...input,
+      reasoningRules: [{ ...input.reasoningRules[0], capability: { ...UNKNOWN_REASONING_CAPABILITY } }],
+    })).toThrow(/glm.*reasoning.*0.*通配兜底/);
+  });
+
   test("保留具体未知型号规则，兜底仍使用共享单例", () => {
     const input = entry();
     const vendor = defineVendor({

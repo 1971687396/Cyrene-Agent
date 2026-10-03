@@ -11,7 +11,14 @@ function assertPattern(pattern: RegExp, location: string): void {
   if (pattern.global || pattern.sticky) {
     throw new Error(`${location}: 模型匹配正则禁止 g/y 标志`);
   }
-  if (pattern.source === ".*") {
+  // 拦截常见的全匹配等价写法；不尝试证明任意正则之间的交集。
+  let source = pattern.source;
+  let previous: string;
+  do {
+    previous = source;
+    source = source.replace(/^\^/, "").replace(/\$$/, "").replace(/^\((?:\?:)?([\s\S]*)\)$/, "$1");
+  } while (source !== previous);
+  if ([".*", ".+", "[\\s\\S]*", "[\\s\\S]+", "[\\S\\s]*", "[\\S\\s]+", "[^]*", "[^]+"].includes(source)) {
     throw new Error(`${location}: 通配兜底由厂商声明函数自动提供`);
   }
 }
