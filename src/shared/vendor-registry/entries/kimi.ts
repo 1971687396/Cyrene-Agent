@@ -24,6 +24,19 @@ export const KIMI_REGISTRY = defineVendor({
   toolChoiceQuirk: {
     mustCall: { preferred: "auto", when: "thinking-only" },
   },
+  structuredOutputRules: [
+    {
+      id: "kimi-structured-output",
+
+      transport: "openai",
+      modelPattern: /^(?:kimi-for-coding|kimi-(?:k3|k2\.(?:6|7-code(?:-highspeed)?)))(?:$|-)/i,
+      tier: "A",
+      mode: "provider_json_schema",
+      verification: "official",
+      metadata: legacyMetadata("迁自 src/main/orchestrator/structured-output/profiles.ts"),
+      repairOverrides: [{ modelPattern: /^(?:kimi-for-coding|kimi-(?:k3|k2\.7-code(?:-highspeed)?))(?:$|-)/i, preset: "kimi-slow" }],
+    },
+  ],
   reasoningRules: [
     // ── kimi（月之暗面）──
     // K3：旗舰思考模型（2026-07 发布）。思考始终开启（Preserved Thinking 常开），

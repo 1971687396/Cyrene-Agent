@@ -18,6 +18,18 @@ export const CLAUDE_REGISTRY = defineVendor({
     supportedTransports: ["anthropic"],
   },
   shortName: "Claude",
+  structuredOutputRules: [
+    {
+      id: "claude-structured-output",
+
+      transport: "anthropic",
+      modelPattern: /^claude-(?:fable-5|mythos(?:-5|-preview)|opus-4-[5-8]|sonnet-(?:5|4-[56])|haiku-4-5)(?:$|-\d{8})/i,
+      tier: "A",
+      mode: "provider_json_schema",
+      verification: "official",
+      metadata: legacyMetadata("迁自 src/main/orchestrator/structured-output/profiles.ts"),
+    },
+  ],
   reasoningRules: [
     // ── claude（Anthropic）──
     { modelPattern: /^claude-fable-5/i, modelInferencePattern: /^claude-fable-5/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/claude.ts"), capability: {

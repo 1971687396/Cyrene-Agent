@@ -23,6 +23,29 @@ export const CHATGPT_REGISTRY = defineVendor({
   },
   // 状态栏短名，与 presets 的 shortName "GPT" 对齐（一致性测试校验两侧相等）
   shortName: "GPT",
+  samplingRules: [
+    {
+
+      modelPattern: /^(?:gpt-4o(?:-mini)?|gpt-4\.1(?:-(?:mini|nano))?)$/i,
+      diversity: true,
+      repetition: "openai",
+      metadata: legacyMetadata("迁自 src/main/orchestrator/vendors/style-sampling.ts"),
+    },
+  ],
+  structuredOutputRules: [
+    {
+      id: "openai-structured-output",
+
+      transport: "openai",
+      // gpt-6 按家族前缀匹配（已发布型号自动覆盖：astra / sol / luna），
+      // 不预测未来小版本号，协议兼容矩阵比 UI 能力表更保守。
+      modelPattern: /^(?:gpt-6(?:$|-)|gpt-5(?:\.\d+)?(?:-(?:sol|terra|luna))?|gpt-4\.1(?:$|-)|gpt-4o-mini(?:$|-)|gpt-4o-(?:2024-08-06|2024-11-20)|o[134](?:$|-))/i,
+      tier: "A",
+      mode: "provider_json_schema",
+      verification: "official",
+      metadata: legacyMetadata("迁自 src/main/orchestrator/structured-output/profiles.ts"),
+    },
+  ],
   reasoningRules: [
     // ── chatgpt（OpenAI）──
     // 按具体型号拆分。

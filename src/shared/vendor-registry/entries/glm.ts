@@ -18,6 +18,26 @@ export const GLM_REGISTRY = defineVendor({
     supportedTransports: ["openai", "anthropic"],
   },
   shortName: "GLM",
+  samplingRules: [
+    {
+
+      modelPattern: /^glm-(?:5\.[123]|5-turbo|4\.7)$/i,
+      diversity: true,
+      metadata: legacyMetadata("迁自 src/main/orchestrator/vendors/style-sampling.ts"),
+    },
+  ],
+  structuredOutputRules: [
+    {
+      id: "glm-json-object",
+
+      transport: "openai",
+      modelPattern: /^glm-(?:5\.[123]|4\.[67])(?:$|-)/i,
+      tier: "B",
+      mode: "provider_json_object",
+      verification: "official",
+      metadata: legacyMetadata("迁自 src/main/orchestrator/structured-output/profiles.ts"),
+    },
+  ],
   reasoningRules: [
     // ── glm（智谱）──
     // 精确型号在前；glm-5 基础型号放在精确型号之后（兜底更宽的 glm-5 系列）。

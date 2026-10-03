@@ -18,6 +18,18 @@ export const DOUBAO_REGISTRY = defineVendor({
     supportedTransports: ["openai", "anthropic", "responses"],
   },
   shortName: "豆包",
+  structuredOutputRules: [
+    {
+      id: "doubao-structured-output",
+
+      transport: "openai",
+      modelPattern: /^doubao-seed(?:$|-)/i,
+      tier: "A",
+      mode: "provider_json_schema",
+      verification: "official",
+      metadata: legacyMetadata("迁自 src/main/orchestrator/structured-output/profiles.ts"),
+    },
+  ],
   reasoningRules: [
     // ── doubao（火山方舟）──
     { modelPattern: /^doubao-seed-/i, modelInferencePattern: /^doubao-seed-/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/doubao.ts"), capability: {

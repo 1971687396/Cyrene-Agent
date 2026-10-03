@@ -26,6 +26,29 @@ export const DEEPSEEK_REGISTRY = defineVendor({
     mustCall: { preferred: "omit", when: "thinking-only" },
     omitAutoTurnWhenThinking: true,
   },
+  samplingRules: [
+    {
+
+      // V4.1 Flash（deepseek-flash）与 V4 旧名；思考模式下 temperature 不生效，需关闭思考
+      modelPattern: /^deepseek-(?:v4-(?:pro|flash)|flash)$/i,
+      diversity: true,
+      requiresReasoningOff: true,
+      metadata: legacyMetadata("迁自 src/main/orchestrator/vendors/style-sampling.ts"),
+    },
+  ],
+  structuredOutputRules: [
+    {
+      id: "deepseek-json-object",
+
+      transport: "openai",
+      // V4.1 Flash（deepseek-flash）与 V4 旧名（官方路由到 V4.1 Flash）均支持 JSON Output
+      modelPattern: /^deepseek-(?:v4-(?:pro|flash)|flash)$/i,
+      tier: "B",
+      mode: "provider_json_object",
+      verification: "official",
+      metadata: legacyMetadata("迁自 src/main/orchestrator/structured-output/profiles.ts"),
+    },
+  ],
   reasoningRules: [
     // ── deepseek ──
     // V4.1 Flash（2026-09-10 发布，模型名 deepseek-flash，原生多模态）与 V4 旧名

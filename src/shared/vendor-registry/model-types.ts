@@ -58,6 +58,10 @@ export interface ModelSamplingRuleInput {
   metadata: RuleMetadata;
 }
 
+export interface ModelSamplingRule extends ModelSamplingRuleInput {
+  providerId: string;
+}
+
 export type StructuredOutputMode = "provider_json_schema" | "provider_json_object" | "prompt_json";
 export type StructuredOutputVerification = "official" | "contract_verified" | "contract_required";
 export type StructuredOutputTier = "A" | "B" | "D" | "M";
@@ -73,6 +77,10 @@ export interface StructuredOutputRuleInput {
   repairOverrides?: readonly { modelPattern: RegExp; preset: "kimi-slow" }[];
   familyLabel?: string;
   metadata: RuleMetadata;
+}
+
+export interface StructuredOutputRule extends StructuredOutputRuleInput {
+  provider: string;
 }
 
 export interface VendorRegistryInput {

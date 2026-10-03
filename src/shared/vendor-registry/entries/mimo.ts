@@ -23,6 +23,29 @@ export const MIMO_REGISTRY = defineVendor({
     supportedTransports: ["openai", "anthropic", "responses"],
   },
   shortName: "MiMo",
+  samplingRules: [
+    {
+
+      modelPattern: /^mimo-v2\.5-pro$/i,
+      diversity: true,
+      requiresReasoningOff: true,
+      metadata: legacyMetadata("迁自 src/main/orchestrator/vendors/style-sampling.ts"),
+    },
+  ],
+  structuredOutputRules: [
+    {
+      id: "mimo-json-object",
+
+      transport: "openai",
+      // V2.6（2026-09-22 发布）与 V2.5 同 API 面（官方文档请求体一致），json_object
+      // 同适用；V2.5 官方 2026-10-21 下线，模式保留至下线后清理。
+      modelPattern: /^mimo-v2\.(?:5|6)(?:$|-)/i,
+      tier: "B",
+      mode: "provider_json_object",
+      verification: "official",
+      metadata: legacyMetadata("迁自 src/main/orchestrator/structured-output/profiles.ts"),
+    },
+  ],
   reasoningRules: [
     // ── mimo（小米）──
     // 跨 transport 共用：OpenAI 入口 + Anthropic 入口都生成 thinking.type。

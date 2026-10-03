@@ -18,6 +18,28 @@ export const QWEN_REGISTRY = defineVendor({
     supportedTransports: ["openai", "responses"],
   },
   shortName: "Qwen",
+  samplingRules: [
+    {
+
+      modelPattern: /^qwen-(?:max|plus|turbo)$/i,
+      diversity: true,
+      repetition: "qwen",
+      maximumTemperature: 1.99,
+      metadata: legacyMetadata("迁自 src/main/orchestrator/vendors/style-sampling.ts"),
+    },
+  ],
+  structuredOutputRules: [
+    {
+      id: "qwen-json-object",
+
+      transport: "openai",
+      modelPattern: /^(?:qwen3\.(?:7-(?:max|plus)|[56]-plus)|qwen-flash)(?:$|-)/i,
+      tier: "B",
+      mode: "provider_json_object",
+      verification: "official",
+      metadata: legacyMetadata("迁自 src/main/orchestrator/structured-output/profiles.ts"),
+    },
+  ],
   reasoningRules: [
     // ── qwen（通义千问）──
     // /-thinking$/ 必须在 /^qwen3/ 之前。

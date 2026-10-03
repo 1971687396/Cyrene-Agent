@@ -28,6 +28,27 @@ export const MINIMAX_REGISTRY = defineVendor({
   toolChoiceQuirk: {
     mustCall: { preferred: "auto", when: "always" },
   },
+  samplingRules: [
+    {
+
+      modelPattern: /^MiniMax-(?:M3|M2\.(?:7|5))$/i,
+      diversity: true,
+      metadata: legacyMetadata("迁自 src/main/orchestrator/vendors/style-sampling.ts"),
+    },
+  ],
+  structuredOutputRules: [
+    {
+      id: "minimax-m3-adapter",
+
+      transport: "openai",
+      modelPattern: /^MiniMax-M3(?:$|[-_])/i,
+      tier: "M",
+      mode: "prompt_json",
+      verification: "contract_verified",
+      requestHints: { sendJsonObject: true, reasoningSplit: true },
+      metadata: legacyMetadata("迁自 src/main/orchestrator/structured-output/profiles.ts"),
+    },
+  ],
   reasoningRules: [
     // ── minimax（稀宇科技）──
     // M3.1-Flash-Preview（2026-09-27 发布，仅 Token Plan / MiniMax Code 可用）：
