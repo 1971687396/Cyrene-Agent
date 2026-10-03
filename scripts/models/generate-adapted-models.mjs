@@ -22,11 +22,7 @@ const outputs = [
   { path: path.join(root, "docs/references/adapted-models.md"), content: renderAdaptedModelsMarkdown(VENDOR_REGISTRY) },
   { path: path.join(root, "docs/references/adapted-models.en.md"), content: renderAdaptedModelsMarkdown(VENDOR_REGISTRY, "en") },
 ];
-const catalogWithoutChineseLanguageLinks = outputs[1].content.replace(
-  /^- \[Model (?:Adaptation Guide|Compatibility Catalog)（中文）\]\(https:\/\/github\.com\/Playa-Cyrene\/Cyrene-Agent\/blob\/master\/docs\/(?:contributing\/model-adaptation|references\/adapted-models)\.md\)$/gm,
-  "",
-);
-const untranslatedText = catalogWithoutChineseLanguageLinks.match(/\p{Script=Han}+/u)?.[0];
+const untranslatedText = outputs[1].content.match(/\p{Script=Han}+/u)?.[0];
 if (untranslatedText) {
   throw new Error(`英文适配清单含未翻译的中文文本「${untranslatedText}」，请在 catalog-doc.ts 中补充英文映射`);
 }

@@ -1,8 +1,5 @@
 # Model Adaptation Contribution Guide
 
-- [Model Adaptation Guide（中文）](https://github.com/Playa-Cyrene/Cyrene-Agent/blob/master/docs/contributing/model-adaptation.md)
-- [Model Compatibility Catalog（中文）](https://github.com/Playa-Cyrene/Cyrene-Agent/blob/master/docs/references/adapted-models.md)
-
 Models ship quickly. If a model you want to use has not been adapted yet, you can open a PR directly. A focused, single-provider update with an exact model ID, supporting evidence, and targeted regression coverage does not need to wait for a maintainer to claim an issue. If you need help, use the repository's **Model Adaptation / Contribution Help** issue form.
 
 Start with the [model compatibility catalog](../references/adapted-models.en.md). A model being recommended does not mean that every transport, endpoint, or capability is supported. The catalog marks legacy and unknown entries explicitly.
