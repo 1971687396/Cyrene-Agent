@@ -43,7 +43,7 @@ export const QWEN_REGISTRY = defineVendor({
   reasoningRules: [
     // ── qwen（通义千问）──
     // /-thinking$/ 必须在 /^qwen3/ 之前。
-    { modelPattern: /-thinking$/i, modelInferencePattern: /-thinking$/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/qwen.ts"), capability: {
+    { modelPattern: /-thinking$/i, modelInferencePattern: /^qwen(?:3(?:[.-].*)?|-(?:max|plus|turbo)(?:-.*)?)-thinking$/i, metadata: legacyMetadata("迁自 src/shared/vendor-registry/entries/qwen.ts"), capability: {
       control: "fixed-on",
       requestStyle: "none",
       supportsDisable: false,
