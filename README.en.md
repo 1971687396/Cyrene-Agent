@@ -194,9 +194,9 @@ Because these endpoints have not been tested through the complete Work workflow:
 
 Unknown models, local models, and custom endpoints use the generic **Tier D** profile by default. Users must verify actual compatibility themselves.
 
-The current model names, capability coverage, and verification status are maintained in the [model compatibility catalog](./docs/references/adapted-models.md). The catalog is the source of truth and may change as models and contributor evidence are updated.
+The current model names, capability coverage, and verification status are maintained in the [model compatibility catalog](./docs/references/adapted-models.en.md). The catalog is the source of truth and may change as models and contributor evidence are updated.
 
-Models not listed in the catalog, local models, and custom endpoints may still work through generic compatibility handling, but full compatibility is not guaranteed. See the [model adaptation guide](./docs/contributing/model-adaptation.md) to contribute a model update.
+Models not listed in the catalog, local models, and custom endpoints may still work through generic compatibility handling, but full compatibility is not guaranteed. See the [model adaptation guide](./docs/contributing/model-adaptation.en.md) to contribute a model update.
 
 > BGE-M3 is a local Embedding enhancement model used by the project. It is not a local large language model for chat.
 

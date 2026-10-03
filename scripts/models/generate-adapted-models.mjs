@@ -18,19 +18,27 @@ const { VENDOR_REGISTRY, renderAdaptedModelsMarkdown, validateModelCatalog } =
   await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString("base64")}`);
 const errors = validateModelCatalog(VENDOR_REGISTRY);
 if (errors.length) throw new Error(`模型声明检查失败：\n${errors.join("\n")}`);
-const output = path.join(root, "docs/references/adapted-models.md");
-const content = renderAdaptedModelsMarkdown(VENDOR_REGISTRY);
+const outputs = [
+  { path: path.join(root, "docs/references/adapted-models.md"), content: renderAdaptedModelsMarkdown(VENDOR_REGISTRY) },
+  { path: path.join(root, "docs/references/adapted-models.en.md"), content: renderAdaptedModelsMarkdown(VENDOR_REGISTRY, "en") },
+];
+const untranslatedText = outputs[1].content.match(/\p{Script=Han}+/u)?.[0];
+if (untranslatedText) {
+  throw new Error(`英文适配清单含未翻译的中文文本「${untranslatedText}」，请在 catalog-doc.ts 中补充英文映射`);
+}
 if (check) {
-  let current;
-  try { current = await readFile(output, "utf8"); } catch (error) {
-    if (error.code !== "ENOENT") throw error;
-    throw new Error("适配清单不存在，请运行 pnpm run generate:adapted-models");
+  for (const output of outputs) {
+    let current;
+    try { current = await readFile(output.path, "utf8"); } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+      throw new Error(`适配清单不存在：${path.relative(root, output.path)}；请运行 pnpm run generate:adapted-models`);
+    }
+    if (current.replace(/\r\n/g, "\n") !== output.content) {
+      throw new Error(`适配清单已过期：${path.relative(root, output.path)}；请运行 pnpm run generate:adapted-models 并提交文档`);
+    }
   }
-  if (current.replace(/\r\n/g, "\n") !== content) {
-    throw new Error("适配清单已过期，请运行 pnpm run generate:adapted-models 并提交文档");
-  }
-  console.log("模型声明与适配清单检查通过");
+  console.log("模型声明与中英文适配清单检查通过");
 } else {
-  await writeFile(output, content, "utf8");
-  console.log("已生成 docs/references/adapted-models.md");
+  for (const output of outputs) await writeFile(output.path, output.content, "utf8");
+  console.log("已生成 docs/references/adapted-models.md 和 docs/references/adapted-models.en.md");
 }
