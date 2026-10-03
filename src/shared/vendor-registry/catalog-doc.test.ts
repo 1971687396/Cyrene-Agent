@@ -72,6 +72,16 @@ describe("生成公开适配清单", () => {
     expect(renderAdaptedModelsMarkdown([escaped])).toBe(output);
   });
 
+  it("实测协议相同但端点不同时不能宣传默认官方端点已确认", () => {
+    const entry = fixture();
+    const scoped = { ...entry, structuredOutputRules: entry.structuredOutputRules.map((rule) => ({ ...rule, metadata: {
+      status: "supported" as const,
+      evidence: { kind: "observed" as const, artifact: "docs/observations/sample.md", checkedAt: "2026-10-04", transport: "openai" as const, endpoint: "https://proxy.example.com/v1" },
+    } })) };
+    expect(renderAdaptedModelsMarkdown([scoped])).toContain("openai：未知（已有规则，证据未覆盖该端点）");
+    expect(validateModelCatalog([scoped])).toContain("sample.sample-v1.structuredOutput.openai: 缺少覆盖或明确未知说明");
+  });
+
   it("实际清单公开已知缺口，不改变协议或补造支持", () => {
     const output = renderAdaptedModelsMarkdown(VENDOR_REGISTRY);
     const sol = output.split("\n").find((line) => line.startsWith("| gpt-6.1-sol |"))!;

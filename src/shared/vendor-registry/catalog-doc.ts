@@ -1,6 +1,6 @@
 import type { AdaptationEvidence, ModelSamplingRuleInput, RuleMetadata, StructuredOutputRuleInput } from "./model-types";
 import type { ModelReasoningRule, Transport, VendorRegistryEntry } from "./types";
-import { evidenceCoversTransport } from "./validation";
+import { evidenceCoversEndpoint, evidenceCoversTransport } from "./validation";
 
 const TRANSPORTS: readonly Transport[] = ["openai", "anthropic", "responses"];
 const REASONING_LABELS = {
@@ -22,14 +22,15 @@ function evidenceLabel(evidence: AdaptationEvidence): string {
   return `脱敏实测：${cell(evidence.artifact)}；核验 ${cell(evidence.checkedAt)}；协议 ${evidence.transport}；端点 ${cell(evidence.endpoint)}`;
 }
 
-function declared(label: string, metadata?: RuleMetadata, transport?: Transport): string {
+function declared(label: string, metadata?: RuleMetadata, transport?: Transport, endpoint?: string): string {
   if (!metadata || metadata.status === "unknown") return "未知（已有规则未确认）";
   if (transport && !evidenceCoversTransport(metadata.evidence, transport)) return "未知（已有规则，证据未覆盖该协议）";
+  if (endpoint && !evidenceCoversEndpoint(metadata.evidence, endpoint)) return "未知（已有规则，证据未覆盖该端点）";
   if (metadata.status === "unsupported") return "声明不支持";
   return `${label}${metadata.evidence.kind === "legacy" ? "（历史未核验）" : ""}`;
 }
 
-function reasoningLabel(rule?: ModelReasoningRule, transport?: Transport): string {
+function reasoningLabel(rule?: ModelReasoningRule, transport?: Transport, endpoint?: string): string {
   if (!rule?.metadata) return "未知（无专用规则）";
   const cap = rule.capability;
   const details = [
@@ -38,24 +39,24 @@ function reasoningLabel(rule?: ModelReasoningRule, transport?: Transport): strin
     cap.defaultEffort ? `默认 ${cap.defaultEffort}` : "",
     cap.autoEffort ? `自动 ${cap.autoEffort}` : "",
   ].filter(Boolean).join("；");
-  return declared(`${REASONING_LABELS[cap.control]}；${details}`, rule.metadata, transport);
+  return declared(`${REASONING_LABELS[cap.control]}；${details}`, rule.metadata, transport, endpoint);
 }
 
-function samplingLabel(rule?: ModelSamplingRuleInput, transport?: Transport): string {
+function samplingLabel(rule?: ModelSamplingRuleInput, transport?: Transport, endpoint?: string): string {
   if (!rule) return "未知（无采样白名单）";
   const details = [rule.diversity ? "温度 / Top-P" : "无多样性参数",
     rule.repetition ? `重复惩罚 ${rule.repetition}` : "",
     rule.requiresReasoningOff ? "仅关闭思考时" : "",
     rule.maximumTemperature !== undefined ? `温度上限 ${rule.maximumTemperature}` : "",
   ].filter(Boolean).join("；");
-  return declared(details, rule.metadata, transport);
+  return declared(details, rule.metadata, transport, endpoint);
 }
 
-function outputLabel(rule?: StructuredOutputRuleInput): string {
+function outputLabel(rule?: StructuredOutputRuleInput, endpoint?: string): string {
   if (!rule) return "未知（提示词 JSON 回退）";
   const hints = [rule.requestHints?.sendJsonObject ? "发送 JSON 对象提示" : "", rule.requestHints?.reasoningSplit ? "分离思考" : "",
     rule.repairOverrides?.length ? "部分型号使用既有慢修复预算" : ""].filter(Boolean);
-  return declared(`${OUTPUT_LABELS[rule.mode]}；等级 ${rule.tier}${hints.length ? `；${hints.join("；")}` : ""}`, rule.metadata, rule.transport);
+  return declared(`${OUTPUT_LABELS[rule.mode]}；等级 ${rule.tier}${hints.length ? `；${hints.join("；")}` : ""}`, rule.metadata, rule.transport, endpoint);
 }
 
 /** 纯共享声明的投影，不加载主进程策略、界面或付费接口。 */
@@ -94,7 +95,8 @@ export function renderAdaptedModelsMarkdown(entries: readonly VendorRegistryEntr
         ...(item.unknownCapabilities ?? []).map((unknown) => `未知 ${unknown.feature} / ${unknown.transport}：${cell(unknown.note)}`),
       ].filter(Boolean).join("<br>") || "无型号级证据";
       const recommendation = item.recommendedFor.map((purpose) => purpose === "chat" ? "主模型" : "视觉").join(" / ") || "非推荐";
-      lines.push(`| ${cell(item.model)} | ${recommendation} | ${reasoningLabel(reasoning, transport)} | ${samplingLabel(sampling, transport)} | ${outputs.map(({ protocol, rule }) => `${protocol}：${outputLabel(rule)}`).join("<br>")} | ${evidence} |`);
+      const presetEndpoint = entry.presetDefaults?.baseUrl ?? cap.baseUrl;
+      lines.push(`| ${cell(item.model)} | ${recommendation} | ${reasoningLabel(reasoning, transport, presetEndpoint)} | ${samplingLabel(sampling, transport, presetEndpoint)} | ${outputs.map(({ protocol, rule }) => `${protocol}：${outputLabel(rule, cap.baseUrl)}`).join("<br>")} | ${evidence} |`);
     }
     const families = [
       ...entry.reasoningRules.filter((rule) => rule.familyLabel).map((rule) => ["推理", rule.familyLabel!, rule.modelPattern, reasoningLabel(rule), rule.metadata!] as const),

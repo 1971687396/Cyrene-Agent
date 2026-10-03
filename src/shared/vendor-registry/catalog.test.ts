@@ -22,7 +22,9 @@ describe("内置静态型号目录", () => {
 
   it("调用方改动返回数组不会污染后续查询", () => {
     const models = getBuiltinModels("qwen", "chat") as string[];
+    const original = [...models];
     models.pop();
-    expect(getBuiltinModels("qwen", "chat")).toEqual(["qwen-max", "qwen-plus", "qwen-turbo"]);
+    expect(getBuiltinModels("qwen", "chat")).toEqual(original);
+    expect(getBuiltinModels("qwen", "chat")).not.toBe(models);
   });
 });

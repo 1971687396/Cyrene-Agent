@@ -17,6 +17,12 @@ export function evidenceCoversTransport(evidence: AdaptationEvidence, transport:
     ? evidence.transports.includes(transport) : evidence.transport === transport);
 }
 
+export function evidenceCoversEndpoint(evidence: AdaptationEvidence, endpoint: string): boolean {
+  if (evidence.kind !== "observed") return true;
+  const normalize = (value: string) => value.trim().replace(/\/+$/, "").toLowerCase();
+  return normalize(evidence.endpoint) === normalize(endpoint);
+}
+
 /** 仅维护命令消费，不因旧证据不足而改变应用启动或请求行为。 */
 export function validateModelCatalog(entries: readonly VendorRegistryEntry[]): string[] {
   const errors: string[] = [];
@@ -58,16 +64,18 @@ export function validateModelCatalog(entries: readonly VendorRegistryEntry[]): s
       }
       if (!item.recommendedFor.length) continue;
       const transport = entry.presetDefaults.transport;
-      const covered = (metadata?: RuleMetadata) => !!metadata && metadata.status !== "unknown"
-        && evidenceCoversTransport(metadata.evidence, transport);
+      const covered = (metadata: RuleMetadata | undefined, endpoint: string) => !!metadata && metadata.status !== "unknown"
+        && evidenceCoversTransport(metadata.evidence, transport) && evidenceCoversEndpoint(metadata.evidence, endpoint);
       const reasoning = entry.reasoningRules.find((rule) => rule.modelPattern.test(item.model));
       const sampling = entry.samplingRules?.find((rule) => rule.modelPattern.test(item.model));
       const output = entry.structuredOutputRules?.find((rule) => rule.transport === transport && rule.modelPattern.test(item.model));
-      for (const [feature, metadata] of [
-        ["reasoning", reasoning?.metadata], ["sampling", sampling?.metadata], ["structuredOutput", output?.metadata],
+      for (const [feature, metadata, endpoint] of [
+        ["reasoning", reasoning?.metadata, entry.presetDefaults.baseUrl],
+        ["sampling", sampling?.metadata, entry.presetDefaults.baseUrl],
+        ["structuredOutput", output?.metadata, entry.capability.baseUrl],
       ] as const) {
         const explicitUnknown = item.unknownCapabilities?.some((unknown) => unknown.feature === feature && unknown.transport === transport && unknown.note.trim());
-        if (!covered(metadata) && !explicitUnknown) {
+        if (!covered(metadata, endpoint) && !explicitUnknown) {
           errors.push(`${id}.${item.model}.${feature}.${transport}: 缺少覆盖或明确未知说明`);
         }
       }
