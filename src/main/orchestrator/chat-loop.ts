@@ -16,6 +16,7 @@ import type {
 } from "./vendors/types";
 import type { ModelRetryStatus } from "../../shared/model-retry";
 import { streamChatWithSdk } from "./vendors/sdk-stream/runtime";
+import { generateChatWithAiSdk } from "./vendors/model-runtime";
 import { classifyModelFailure } from "./vendors/model-error-classifier";
 import { runModelRequestWithRetry, type ModelRetryAttemptInput } from "./vendors/model-retry-runner";
 import { readRetryAfterMs } from "./vendors/model-retry-policy";
@@ -43,8 +44,9 @@ export interface ChatLoopOptions {
   signal?: AbortSignal;
   /** 非流式降级时的展示节奏；测试可设为 0，生产默认 20ms。 */
   fallbackRevealIntervalMs?: number;
-  /** 默认使用官方 SDK；测试可注入可控流实现。 */
+  /** 默认使用统一 SDK 执行入口；调用方可注入流实现。 */
   streamChat?: typeof streamChatWithSdk;
+  generateChat?: typeof generateChatWithAiSdk;
   /** 当前对话模式：composePromptLayers 按模式选择提示词层组合。 */
   mode?: string;
   /** 权威轨迹提交端：canonical assistant 落盘（CTA Phase 1）。 */
@@ -169,50 +171,10 @@ export async function runChatLoop(options: ChatLoopOptions): Promise<AgentLoopRe
       ...buildRequest(messages, false),
     };
     const effectiveRequest = options.adapter.applyCacheHints?.(request, vendorConfig) ?? request;
-    const http = options.adapter.buildRequest(effectiveRequest, options.settings);
-    const controller = new AbortController();
-    const abort = () => controller.abort();
-    signal.addEventListener("abort", abort, { once: true });
-    if (signal.aborted) abort();
-    let timedOut = false;
-    const timer = setTimeout(() => { timedOut = true; abort(); }, remainingBudget());
-    try {
-      let response: Response;
-      try {
-        response = await fetch(http.url, {
-          method: "POST",
-          headers: http.headers,
-          body: http.body,
-          signal: controller.signal,
-        });
-      } catch (error) {
-        if (signal.aborted) throw error;
-        const failure = classifyModelFailure({ provider: options.adapter.id, model: effectiveRequest.model, error });
-        throw new AgentRuntimeError("E_MODEL_REQUEST_FAILED", "模型服务请求失败。", {
-          cause: error,
-          modelFailure: { ...failure, category: timedOut ? "TIMEOUT" : failure.category === "UNKNOWN" ? "NETWORK" : failure.category },
-        });
-      }
-      if (!response.ok) {
-        const body = await response.text().catch(() => "");
-        // [image-send] 链路日志④：服务端拒绝时打印完整错误体（Anthropic 400 会带具体 reason）。
-        console.error(`[image-send] ChatLoop 请求被拒 HTTP ${response.status}:`, body.slice(0, 500) || "(无响应体)");
-        let errorPayload: unknown;
-        try { errorPayload = JSON.parse(body); } catch { errorPayload = undefined; }
-        throw new AgentRuntimeError(
-          "E_MODEL_REQUEST_FAILED",
-          `模型请求失败：HTTP ${response.status}`,
-          {
-            modelFailure: classifyModelFailure({ provider: options.adapter.id, model: effectiveRequest.model, status: response.status, error: errorPayload }),
-            retryAfterMs: readRetryAfterMs(response.headers),
-          },
-        );
-      }
-      return options.adapter.parseResponse(await response.json());
-    } finally {
-      clearTimeout(timer);
-      signal.removeEventListener("abort", abort);
-    }
+    return (options.generateChat ?? generateChatWithAiSdk)({
+      adapter: options.adapter, request: effectiveRequest, config: vendorConfig,
+      timeoutMs: remainingBudget(), signal,
+    });
   };
 
   const messageId = `msg-${Date.now()}`;

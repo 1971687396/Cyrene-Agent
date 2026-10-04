@@ -35,18 +35,20 @@ const fixtures: StreamFixture[] = [
     name: "OpenAI Chat Completions 的 SSE 保活注释",
     adapter: new OpenAICompatAdapter("chatgpt", capability),
     start: ": connected\n\n", activity: ": still working\n\n",
-    complete: 'data: {"choices":[{"delta":{"content":"done"},"finish_reason":null}]}\n\n'
-      + 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n'
+    complete: 'data: {"choices":[{"index":0,"delta":{"content":"done"},"finish_reason":null}]}\n\n'
+      + 'data: {"choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}\n\n'
       + 'data: [DONE]\n\n',
   },
   {
     name: "Responses 的原生网页搜索进度",
     adapter: new ResponsesAdapter("chatgpt", { ...capability, transport: "responses" }),
-    start: sse("response.created", { type: "response.created", response: { id: "resp-test" } }),
+    start: sse("response.created", { type: "response.created", response: { id: "resp-test", model: "model-test", created_at: 1 } }),
     activity: sse("response.web_search_call.searching", {
       type: "response.web_search_call.searching", output_index: 0, item_id: "search-test",
     }),
-    complete: sse("response.output_text.delta", { type: "response.output_text.delta", delta: "done" })
+    complete: sse("response.output_item.added", { type: "response.output_item.added", output_index: 0,
+      item: { id: "message-test", type: "message", role: "assistant", content: [] } })
+      + sse("response.output_text.delta", { type: "response.output_text.delta", item_id: "message-test", output_index: 0, content_index: 0, delta: "done" })
       + sse("response.completed", {
         type: "response.completed",
         response: {

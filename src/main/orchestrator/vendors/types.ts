@@ -6,6 +6,7 @@ import type { ReasoningPreference } from "../../../shared/reasoning";
 import type { ManualReasoningConfig } from "../../../shared/manual-reasoning";
 import type { PromptLayerMetadata } from "../prompt-layers";
 import type { ProviderCapability, Transport } from "../../../shared/vendor-registry/types";
+import type { AssistantContent } from "ai";
 
 // 厂商能力系类型已迁入 shared/vendor-registry/types（厂商注册表的类型事实源）；
 // 此处 re-export 保持既有 import 路径（./types）不变，调用方零改动。
@@ -51,10 +52,27 @@ export interface ToolCall {
   arguments: string; // JSON 字符串，沿用 OpenAI 习惯
 }
 
+/** 只在来源完全匹配时回放；摘要和跨模型请求使用通用消息内容。 */
+export interface ModelMessageOrigin {
+  transport: Transport;
+  provider: string;
+  model: string;
+  /** 规范化端点的摘要，不保存含认证参数的地址。 */
+  endpoint: string;
+  /** 高熵凭证的摘要；换账号或密钥后不继续回放旧签名。 */
+  credentialScope: string;
+}
+
+export interface ProviderReplay {
+  version: 1;
+  origin: ModelMessageOrigin;
+  /** SDK 规范化后的有序内容；与通用内容分开持久化，升级时可独立迁移。 */
+  content: Exclude<AssistantContent, string>;
+}
+
 /**
- * 统一消息结构。两个 transport 各自只读自己需要的字段，调度层透传。
- * - OpenAI transport 读 content / toolCalls / toolCallId / name
- * - Anthropic transport 额外读 thinking / rawAssistant（多轮必须原样回传 content block 数组）
+ * 通用正文和工具语义是历史事实来源；调度层透传带来源的重放补充数据。
+ * 模型执行入口按目标来源投影请求，旧适配器只发送通用内容。
  */
 export interface ChatMessage {
   role: "system" | "user" | "assistant" | "tool";
@@ -66,8 +84,9 @@ export interface ChatMessage {
   name?: string;
   /** 思考/推理纯文本（reasoning_content / thinking block 抽出来）。 */
   thinking?: string;
-  /** Anthropic 多轮必须原样回传 assistant.content block 数组；OpenAI transport 不读。 */
+  /** 旧历史兼容输入。无来源原始数据不得直接发送给厂商。 */
   rawAssistant?: unknown;
+  providerReplay?: ProviderReplay;
   /** 仅供本地 transcript / UI 使用；Adapter 序列化时不得发送。 */
   visibility?: "user" | "internal";
   /** 仅供本地持久化和去重使用；Adapter 序列化时不得发送。 */

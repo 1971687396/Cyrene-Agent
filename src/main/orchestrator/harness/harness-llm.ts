@@ -9,7 +9,7 @@
  * - cyrene-harness.ts 的 runCompaction（mid-loop 压缩摘要）
  */
 
-import { getAdapterForConfig, streamChatWithSdk, resolveTransport } from "../vendors";
+import { getAdapterForConfig, streamChatWithSdk, generateChatWithAiSdk, resolveTransport } from "../vendors";
 import { recordUsage, recordRequest } from "../../token-usage-store";
 import type {
   ChatMessage,
@@ -21,10 +21,7 @@ import type {
 import type { HarnessConfig } from "./types";
 import { AGENT_COMPACTION_PROMPT } from "./compaction";
 import { isExplicitStreamUnsupported } from "../vendors/stream-support";
-import { AgentRuntimeError } from "../agent-runtime-error";
-import { classifyModelFailure } from "../vendors/model-error-classifier";
 import { runModelRequestWithRetry } from "../vendors/model-retry-runner";
-import { readRetryAfterMs } from "../vendors/model-retry-policy";
 import type { ModelRetryStatus } from "../../../shared/model-retry";
 import {
   composePromptLayers,
@@ -93,42 +90,9 @@ export async function callLLM(
     return response;
   };
   const fallbackRequest: ChatRequest = { ...chatRequest, stream: false };
-  const http = adapter.buildRequest(fallbackRequest, vendorConfig);
-  const requestNonStreaming = async (attemptSignal: AbortSignal): Promise<ChatResponse> => {
-    let response: Response;
-    try {
-      response = await fetch(http.url, {
-        method: "POST",
-        headers: http.headers,
-        body: http.body,
-        signal: attemptSignal,
-      });
-    } catch (error) {
-      if (attemptSignal.aborted) throw error;
-      const failure = classifyModelFailure({ provider: adapter.id, model: vendorConfig.model, error });
-      throw new AgentRuntimeError("E_MODEL_REQUEST_FAILED", "模型服务请求失败。", {
-        cause: error,
-        modelFailure: { ...failure, category: failure.category === "UNKNOWN" ? "NETWORK" : failure.category },
-        retryAfterMs: readRetryAfterMs(error),
-      });
-    }
-    if (!response.ok) {
-      const rawBody = await response.text().catch(() => "");
-      console.error(
-        "[image-send] LLM 请求被拒:",
-        `\n  model id: ${vendorConfig.model}`,
-        `\n  baseUrl: ${http.url}`,
-        `\n  error: HTTP ${response.status} ${rawBody.slice(0, 500) || "(无响应体)"}`,
-      );
-      let errorData: unknown;
-      try { errorData = JSON.parse(rawBody || "{}"); } catch { errorData = undefined; }
-      throw new AgentRuntimeError("E_MODEL_REQUEST_FAILED", `模型请求失败：HTTP ${response.status}`, {
-        modelFailure: classifyModelFailure({ provider: adapter.id, model: vendorConfig.model, status: response.status, error: errorData }),
-        retryAfterMs: readRetryAfterMs(response.headers),
-      });
-    }
-    return adapter.parseResponse(await response.json());
-  };
+  const requestNonStreaming = (attemptSignal: AbortSignal): Promise<ChatResponse> => generateChatWithAiSdk({
+    adapter, request: fallbackRequest, config: vendorConfig, timeoutMs: config.totalTimeoutMs, signal: attemptSignal,
+  });
 
   let forceNonStreaming = false;
   const response = await runModelRequestWithRetry(async (attempt) => {
@@ -201,43 +165,10 @@ export async function summarizeHistory(
       : {}),
   };
 
-  const http = adapter.buildRequest(chatRequest, vendorConfig);
   return runModelRequestWithRetry(async ({ signal: attemptSignal }) => {
-    let response: Response;
-    try {
-      response = await fetch(http.url, {
-        method: "POST",
-        headers: http.headers,
-        body: http.body,
-        signal: attemptSignal,
-      });
-    } catch (error) {
-      if (attemptSignal.aborted) throw error;
-      const failure = classifyModelFailure({ provider: adapter.id, model: vendorConfig.model, error });
-      throw new AgentRuntimeError("E_MODEL_REQUEST_FAILED", "模型服务请求失败。", {
-        cause: error,
-        modelFailure: { ...failure, category: failure.category === "UNKNOWN" ? "NETWORK" : failure.category },
-        retryAfterMs: readRetryAfterMs(error),
-      });
-    }
-
-    if (!response.ok) {
-      const rawBody = await response.text().catch(() => "");
-      console.error(
-        "[image-send] 摘要请求被拒:",
-        `\n  model id: ${vendorConfig.model}`,
-        `\n  baseUrl: ${http.url}`,
-        `\n  error: HTTP ${response.status} ${rawBody.slice(0, 500) || "(无响应体)"}`,
-      );
-      let errorData: unknown;
-      try { errorData = JSON.parse(rawBody || "{}"); } catch { errorData = undefined; }
-      throw new AgentRuntimeError("E_MODEL_REQUEST_FAILED", `摘要请求失败：HTTP ${response.status}`, {
-        modelFailure: classifyModelFailure({ provider: adapter.id, model: vendorConfig.model, status: response.status, error: errorData }),
-        retryAfterMs: readRetryAfterMs(response.headers),
-      });
-    }
-
-    return adapter.parseResponse(await response.json()).text;
+    const response = await generateChatWithAiSdk({ adapter, request: chatRequest, config: vendorConfig,
+      timeoutMs: 0, signal: attemptSignal });
+    return response.text;
   }, {
     provider: adapter.id,
     model: vendorConfig.model,

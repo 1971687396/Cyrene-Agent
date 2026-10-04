@@ -169,6 +169,15 @@ function runChatLoop(options: ChatLoopOptions) {
   return runChatLoopProduction({
     ...options,
     streamChat: options.streamChat ?? testSdkStream,
+    generateChat: options.generateChat ?? (async input => {
+      const http = input.adapter.buildRequest(input.request, input.config);
+      const response = await fetch(http.url, { method: "POST", headers: http.headers, body: http.body, signal: input.signal });
+      if (!response.ok) {
+        const error = Object.assign(new Error(`HTTP ${response.status}`), { status: response.status, retryAfterMs: 0 });
+        throw error;
+      }
+      return input.adapter.parseResponse(await response.json());
+    }),
   });
 }
 

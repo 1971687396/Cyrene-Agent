@@ -130,7 +130,7 @@ describe("callLLM retries", () => {
     fakeStreamChat.mockRejectedValueOnce(Object.assign(new Error("streaming is not supported"), { status: 400 }));
     globalThis.fetch = vi.fn()
       .mockResolvedValueOnce(new Response("busy", { status: 503, headers: { "retry-after": "0" } }))
-      .mockResolvedValueOnce(new Response('{"text":"recovered"}', { status: 200, headers: { "content-type": "application/json" } })) as unknown as typeof fetch;
+      .mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content: "recovered" }, finish_reason: "stop" }] }), { status: 200, headers: { "content-type": "application/json" } })) as unknown as typeof fetch;
 
     const result = await callLLM(vendorConfig, promptLayers, messages, [], harnessConfig);
 
@@ -144,7 +144,7 @@ describe("summarizeHistory retries", () => {
   it("retries a zero-output 503 response", async () => {
     globalThis.fetch = vi.fn()
       .mockResolvedValueOnce(new Response("busy", { status: 503, headers: { "retry-after": "0" } }))
-      .mockResolvedValueOnce(new Response('{"text":"summary"}', { status: 200, headers: { "content-type": "application/json" } })) as unknown as typeof fetch;
+      .mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content: "summary" }, finish_reason: "stop" }] }), { status: 200, headers: { "content-type": "application/json" } })) as unknown as typeof fetch;
     const statuses: ModelRetryStatus[] = [];
 
     await expect(summarizeHistory(vendorConfig, "system", messages, [], undefined, {
