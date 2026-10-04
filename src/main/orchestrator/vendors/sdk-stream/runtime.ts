@@ -16,6 +16,7 @@ import {
 } from "./client-config";
 import { normalizeOpenAIChunk } from "./openai-normalizer";
 import { normalizeResponsesEvent } from "./responses-normalizer";
+import { ResponsesOutputTracker } from "./responses-output";
 import { createResponsesTrace } from "./responses-trace";
 import { createStreamActivityFetch } from "./stream-activity-fetch";
 import {
@@ -237,11 +238,22 @@ export async function streamChatWithSdk(
         signal: controller.signal,
       });
       let finalResponse: Record<string, unknown> | undefined;
+      const outputTracker = new ResponsesOutputTracker();
       for await (const event of chunks) {
         responsesTrace?.event(event);
+        outputTracker.observe(event);
         const terminal = responsesTerminalResponse(event);
-        if (terminal) finalResponse = terminal;
-        for (const delta of normalizeResponsesEvent(event)) dispatch(delta);
+        const eventRecord = typeof event === "object" && event !== null && !Array.isArray(event)
+          ? event as Record<string, unknown>
+          : undefined;
+        const reconciled = terminal
+          ? outputTracker.reconcile(terminal, accumulator.snapshot(), eventRecord?.type === "response.completed")
+          : undefined;
+        if (reconciled) finalResponse = reconciled;
+        const normalizedEvent = reconciled && eventRecord
+          ? { ...eventRecord, response: reconciled }
+          : event;
+        for (const delta of normalizeResponsesEvent(normalizedEvent)) dispatch(delta);
       }
       if (finalResponse === undefined || !Array.isArray(finalResponse.output)) {
         const reason = finalResponse === undefined
