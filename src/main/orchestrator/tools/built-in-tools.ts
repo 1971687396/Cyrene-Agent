@@ -8,7 +8,7 @@
 // 门禁：built-in-tools.snapshot.test.ts（注册顺序 + 模型可见字段 + 拒绝路径协议）。
 
 export { setUserTimezoneConfig, currentUserTimezone } from "./builtin-tools/timezone";
-export { setWeatherConfig, type WeatherCardData } from "./builtin-tools/weather-tool";
+export { setWeatherConfig } from "./builtin-tools/weather-tool";
 export { setSearchConfig } from "./builtin-tools/web-search-tool";
 
 import { toolRegistry } from "./registry/tool-registry";

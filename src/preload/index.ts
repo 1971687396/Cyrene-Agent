@@ -238,7 +238,7 @@ const schedulerEventsApi = {
 contextBridge.exposeInMainWorld("schedulerEvents", schedulerEventsApi);
 
 // 用户选择卡片（歧义消解器）：渲染端回传用户选择给主进程
-// 卡片展示走 AGUI_EVENT 的 CUSTOM 事件（与天气卡片同通道），resolve 走独立 IPC
+// 卡片展示走 AGUI_EVENT 的 CUSTOM 事件，resolve 走独立 IPC
 const choiceApi = {
   resolve: (id: string, value: unknown) =>
     ipcRenderer.invoke(

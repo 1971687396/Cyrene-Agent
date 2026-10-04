@@ -75,15 +75,6 @@ describe("React 主题令牌契约", () => {
     }
   });
 
-  it("允许天气卡片维护独立于应用主题的明暗与插画配色", () => {
-    const weather = readStyle(resolve(__dirname, "../features/chat/components/weather/weather-card.css"));
-
-    expect(weather).toMatch(/\.weather-card\[data-theme="light"\]\s*\{[^}]*--card-bg:/s);
-    expect(weather).toMatch(/\.weather-card\[data-theme="dark"\]\s*\{[^}]*--card-bg:/s);
-    expect(weather).toMatch(/\.weather-card\[data-theme="light"\]\s*\{[^}]*--sun-core-1:/s);
-    expect(weather).toMatch(/\.weather-card\[data-theme="dark"\]\s*\{[^}]*--sun-core-1:/s);
-  });
-
   it("只引用已声明的表面语义令牌", () => {
     const declarations = [
       readStyle(resolve(uiRoot, "tokens.css")),

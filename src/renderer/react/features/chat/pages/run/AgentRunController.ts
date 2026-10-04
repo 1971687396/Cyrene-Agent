@@ -32,7 +32,7 @@ import { applyAgentRoundBoundary, createRoundProcessMessage } from "../../compon
 import { applyTaskDelegationEvent, normalizeTaskDelegationEvent } from "../../components/task-delegations";
 import { getCharacterName, t } from "../../../../i18n";
 import type { AguiApi, AguiEvent, CandidateTextEventValue, ChatStoreApi } from "../chat-page-bridge";
-import { normalizeWeatherData, parseSessionRunActiveError, stageForStep } from "../chat-page-normalizers";
+import { parseSessionRunActiveError, stageForStep } from "../chat-page-normalizers";
 import { RunEventGate } from "../run-event-gate";
 import { applyVisibleOutput, normalizeShellOutputEvent } from "./command-output";
 import {
@@ -1279,11 +1279,6 @@ export class AgentRunController {
     } else if (event.type === "CUSTOM" && event.name === "cyrene.sticker") {
       this.sticker = typeof event.value === "string" ? event.value : null;
       this.deps.host.patchMessage(this.input.sessionId, this.input.assistantId, { sticker: this.sticker });
-    } else if (event.type === "CUSTOM" && event.name === "cyrene.weather") {
-      const weather = normalizeWeatherData(event.value);
-      if (weather) {
-        this.deps.host.patchMessage(this.input.sessionId, this.input.assistantId, { weather });
-      }
     } else if (event.type === "RUN_FINISHED") {
       this.deps.host.patchMessage(this.input.sessionId, this.input.assistantId, { modelRetry: null });
       // 读取 result.status 区分终态（success / cancelled / timeout / runtime_error）

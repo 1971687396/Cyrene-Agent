@@ -6,7 +6,7 @@
 //   → 渲染端显示选项卡片 → 用户点选项 → invoke(IPC.CHOICE_RESOLVE) 回传
 //   → main 查 pending map → resolve Promise → 工具拿到用户选择继续执行
 //
-// 回调注入模式（仿 weatherCardCallback）：main/index.ts 启动时注入一个
+// 回调注入模式：main/index.ts 启动时注入一个
 // (cardData) => void 回调，user-choice.ts 持有它，工具调用时触发。
 // 这样避免直接 import electron/index.ts 造成循环依赖。
 

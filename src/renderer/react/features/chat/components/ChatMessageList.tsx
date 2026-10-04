@@ -31,8 +31,6 @@ import { stopTtsPlayback } from "./tts-playback";
 import { LastTurnActionButton } from "./LastTurnActionButton";
 import { resolveRevisableLastTurn } from "./last-turn-actions";
 import { extractMessageStickerId, stripMessageStickerMarkers } from "./message-sticker";
-import type { WeatherData } from "./weather/weather-types";
-import { WeatherCard } from "./weather/WeatherCard";
 import { buildAskUserQa, buildFlatRunTimeline, countRoundChangedFiles, describeToolExecution, resolveAgentRoundTitle } from "./agent-rounds";
 import { TaskDelegationRow } from "./TaskDelegationRow";
 import { extractFileChanges, FileChangeCard } from "./FileChangeCard";
@@ -75,7 +73,6 @@ export interface ChatMessageItem {
   runId?: string;
   taskPlan?: TaskPlanPresentation;
   attachments?: ChatMessageAttachment[];
-  weather?: WeatherData;
   /** 上下文容量快照：运行中为每轮 preRequest 实时值，run 结束后为终态快照。 */
   contextUsage?: ContextUsageSnapshot;
   /** 渠道群聊的发送者/引用等隐藏模型上下文；不直接渲染。 */
@@ -1177,15 +1174,6 @@ function createRoles(
     rootClassName: "cy-message cy-message--waiting",
     contentRender: (_content: string, info: { extraInfo?: { modelRetry?: ModelRetryStatus | null } }) => <ModelWaitContent modelRetry={info.extraInfo?.modelRetry} />,
   },
-  weather: {
-    placement: "start" as const,
-    variant: "borderless" as const,
-    avatar: null,
-    rootClassName: "cy-message cy-message--weather",
-    contentRender: (_content: string, info: { extraInfo?: { weather?: WeatherData } }) => (
-      info.extraInfo?.weather ? <WeatherCard data={info.extraInfo.weather} /> : null
-    ),
-  },
   review: {
     placement: "start" as const,
     variant: "borderless" as const,
@@ -1312,14 +1300,6 @@ function convertMessage(message: ChatMessageItem, enabledStickers: readonly Enab
         extraInfo: { tools: [tools[index]] },
       });
     }
-  }
-  if (message.weather) {
-    assistantItems.push({
-      key: `${message.id}-weather`,
-      role: "weather",
-      content: "",
-      extraInfo: { weather: message.weather },
-    });
   }
   if (stages.includes("assistant")) {
     // 运行块内的正文不重复头像（头像已钉在活动卡头部）：

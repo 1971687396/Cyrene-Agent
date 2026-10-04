@@ -413,7 +413,7 @@ export const IPC = {
   PLAN_GET_STATE: "plan:get-state",
 
   // user choice card (ambiguity resolver)
-  // 卡片展示走 AGUI_EVENT 的 CUSTOM 事件（与天气卡片同通道）
+  // 卡片展示走 AGUI_EVENT 的 CUSTOM 事件
   // renderer → main：回传用户选择
   CHOICE_RESOLVE: "choice:resolve",
 
