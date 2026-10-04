@@ -22,7 +22,7 @@
 // 这些全部塞到 BuildOptionsDeps 里。dispatcher / agent-runtime 通过
 // buildBuildOptionsDeps()（agent-runtime.ts）注入同一份 deps，保证口径一致。
 import { existsSync } from "fs";
-import { basename } from "path";
+import { basename, resolve } from "path";
 import {
   resolveExecutionMode,
   type CyreneRunOptions,
@@ -364,6 +364,24 @@ function withAttachmentPathReferences(
     content: `${text}${text ? "\n\n" : ""}【本轮附件路径】\n${pathList}`,
   };
   return next;
+}
+
+/** 本轮图片优先；渠道等旧入口回退 imageAttachments，统一供四条视觉路径消费。 */
+function resolveImageAttachments(input: AguiRunInput): NonNullable<AguiRunInput["imageAttachments"]> {
+  const currentImages = input.currentUser?.attachments?.flatMap((attachment) => {
+    if (attachment.kind !== "image" || typeof attachment.filePath !== "string" || !attachment.filePath.trim()) return [];
+    return [{ name: attachment.name, filePath: attachment.filePath, mime: attachment.mime }];
+  }) ?? [];
+  const images = currentImages.length > 0 ? currentImages : input.imageAttachments ?? [];
+  const seen = new Set<string>();
+  return images.filter((image) => {
+    if (typeof image?.filePath !== "string" || !image.filePath.trim() || typeof image.name !== "string") return false;
+    const normalizedPath = resolve(image.filePath);
+    const key = process.platform === "win32" ? normalizedPath.toLowerCase() : normalizedPath;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function withDirectImageAttachments(messages: ChatMessage[], input: AguiRunInput): ChatMessage[] {
@@ -1011,7 +1029,7 @@ export async function buildAgentRunOptions(
   const directVisionOk = imageRoute.mode === "direct";
   // [image-send] 链路日志①：直发判定。图片"传不过去"先看这条——
   // direct=false 时图片走 caption 降级/文本占位，根本不会以 image 块发给主模型。
-  const imageInput = hasFileAttachments ? { ...input, imageAttachments: undefined } : input;
+  const imageInput = { ...input, imageAttachments: resolveImageAttachments(input) };
   if (imageInput.imageAttachments?.length) {
     console.log("[image-send] 直发判定:", {
       provider: settings.provider,

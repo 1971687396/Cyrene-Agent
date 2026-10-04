@@ -238,7 +238,7 @@ export function registerSettingsIpc(deps: SettingsIpcDependencies): void {
       const start = Date.now();
       console.log("[Cyrene] test vision: model=" + cfg.model + " url=" + cfg.baseUrl);
       try {
-        const { captionImage } = await import("../orchestrator/vision-captioner");
+        const { captionImage } = await import("../orchestrator/vision-captioner.js");
         const result = await captionImage(
           { base64: VISION_TEST_IMAGE_BASE64, mime: "image/png" },
           "这张图是什么颜色？用一个词回答。",

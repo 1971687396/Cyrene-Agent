@@ -195,8 +195,8 @@ function registerChannelsIpc(
 	  ipc.handle(IPC.CHANNELS_WECHAT_LOGIN_START, async () => {
 	    if (!wxAdapter) return { ok: false, error: "adapter 未初始化" };
 	    try {
-	      const { fetchQrCode } = await import("./adapters/wechat/ilink-protocol-client");
-	      const { createQrDataUrl } = await import("./adapters/wechat/qr");
+	      const { fetchQrCode } = await import("./adapters/wechat/ilink-protocol-client.js");
+	      const { createQrDataUrl } = await import("./adapters/wechat/qr.js");
 
 	      // 1. 拿原始 qrcode 字符串 + liteapp 二维码 URL
 	      //    - qrcode: 32 hex ticket（轮询 get_qrcode_status 用）
