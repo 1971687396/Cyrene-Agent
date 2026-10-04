@@ -35,7 +35,7 @@ export function ModelSelector({
   /** 是否已有会话；欢迎页将默认档案视为显式选择，允许显示暂存模型。 */
   hasSession?: boolean;
   activeProfileId?: string;
-  /** 当前会话或欢迎页暂存的模型值；旧会话未记录时跟随档案默认。 */
+  /** 会话 raw model（仅用于解析 effective；legacy 会话为 undefined = 跟随档案默认）。 */
   sessionModel?: string;
   onSelect: (id: string) => void;
   /** 模型选择回调；未传时不显示子下拉。 */
@@ -53,7 +53,7 @@ export function ModelSelector({
   };
   useEffect(() => { void load(); }, []);
   const active = profiles.find((item) => item.id === activeProfileId) ?? profiles.find((item) => item.id === defaultProfileId) ?? profiles[0];
-  const bindingProfileId = hasSession ? activeProfileId : active?.id;
+  const bindingProfileId = activeProfileId ?? (!hasSession ? defaultProfileId ?? profiles[0]?.id : undefined);
   // effective 解析吃 binding 不吃裸 profile：stale 绑定/失效 raw 值都回退档案默认
   const binding = resolveSessionProfileBinding(
     { modelProfiles: profiles, defaultModelProfileId: defaultProfileId },
