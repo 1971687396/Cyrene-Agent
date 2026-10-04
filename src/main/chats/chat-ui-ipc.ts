@@ -184,7 +184,9 @@ export function registerChatUiIpc(deps: ChatUiIpcDependencies): void {
     try {
       for (const item of await clipboard.read()) {
         if (!item.types.includes("text/uri-list")) continue;
-        const uriList = await (await item.getType("text/uri-list")).text();
+        const clipboardData = await item.getType("text/uri-list");
+        if (!("text" in clipboardData) || typeof clipboardData.text !== "function") continue;
+        const uriList = await clipboardData.text();
         for (const line of uriList.split(/\r?\n/)) {
           const value = line.trim();
           if (!value || value.startsWith("#")) continue;
