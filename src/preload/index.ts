@@ -87,6 +87,7 @@ const chatApi = {
     if (entries.length === 0) return [];
     return ipcRenderer.invoke(IPC.CHAT_INGEST_FILES, entries);
   },
+  pasteClipboardFiles: (): Promise<unknown[]> => ipcRenderer.invoke(IPC.CHAT_PASTE_FILES),
   captionImage: (filePath: string, hasAnnotations = false) =>
     ipcRenderer.invoke(IPC.CHAT_CAPTION_IMAGE, { filePath, hasAnnotations }),
   getImagePreview: (filePath: string) =>
